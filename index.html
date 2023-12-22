@@ -23,16 +23,23 @@
         attribution: '© OpenStreetMap contributors'
     }).addTo(mymap);
 
-    function onMapClick(e) {
+    let marker;
+
+    mymap.on('click', function(e) {
         const lat = e.latlng.lat;
         const lng = e.latlng.lng;
+
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(mymap);
+        }
+
         // Call Python function with coordinates
         if (window.pybridge) {
             window.pybridge.coordinatesChanged(lat, lng);
         }
-    }
-
-    mymap.on('click', onMapClick);
+    });
 
     new QWebChannel(qt.webChannelTransport, function (channel) {
         window.pybridge = channel.objects.pybridge;
