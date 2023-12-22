@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+    <style>
+        #mapid {
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<div id="mapid"></div>
+<script>
+
+    const mymap = L.map('mapid').setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mymap);
+
+    function onMapClick(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        // Call Python function with coordinates
+        if (window.pybridge) {
+            window.pybridge.coordinatesChanged(lat, lng);
+        }
+    }
+
+    mymap.on('click', onMapClick);
+
+    new QWebChannel(qt.webChannelTransport, function (channel) {
+        window.pybridge = channel.objects.pybridge;
+    });
+
+</script>
+</body>
+</html>
